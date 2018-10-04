@@ -1,5 +1,14 @@
 # GojsUml
 
+installed node v8.9.0
+installed npm 5.5.1
+npm install -g @angular/cli
+
+cd to Folder
+npm install
+ng serve
+Navigate to `http://localhost:4200/`
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.2.2.
 
 ## Development server
