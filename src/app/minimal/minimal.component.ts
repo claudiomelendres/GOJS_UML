@@ -13,7 +13,7 @@ export class MinimalComponent implements OnInit {
   ngOnInit() {
 
     const $ = go.GraphObject.make;  // for conciseness in defining templates
-    const myDiagram = $(go.Diagram, 'myDiagramDiv',  // create a Diagram for the DIV HTML element
+    const myDiagram = $(go.Diagram, 'myDiagramDivMinimal',  // create a Diagram for the DIV HTML element
                   {
                     initialContentAlignment: go.Spot.Center,  // center the content
                     'undoManager.isEnabled': true  // enable undo & redo

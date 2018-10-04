@@ -100,7 +100,8 @@ export class UmlComponent implements OnInit {
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
-        $(go.Shape, { fill: 'lightyellow' }),
+        $(go.Shape, 'RoundedRectangle', { strokeWidth: 1, fill: 'lightyellow' },
+        new go.Binding('fill', 'color')),
         $(go.Panel, 'Table',
           { defaultRowSeparatorStroke: 'black' },
           // header
@@ -119,7 +120,7 @@ export class UmlComponent implements OnInit {
             new go.Binding('itemArray', 'properties'),
             {
               row: 1, margin: 3, stretch: go.GraphObject.Fill,
-              defaultAlignment: go.Spot.Left, background: 'lightyellow',
+              defaultAlignment: go.Spot.Left,
               itemTemplate: propertyTemplate
             }
           ),
@@ -134,7 +135,7 @@ export class UmlComponent implements OnInit {
             new go.Binding('itemArray', 'methods'),
             {
               row: 2, margin: 3, stretch: go.GraphObject.Fill,
-              defaultAlignment: go.Spot.Left, background: 'lightyellow',
+              defaultAlignment: go.Spot.Left,
               itemTemplate: methodTemplate
             }
           ),
@@ -173,7 +174,7 @@ export class UmlComponent implements OnInit {
     const nodedata = [
       {
         key: 1,
-        name: 'BankAccount',
+        name: 'BankAccount', color: 'lightblue',
         properties: [
           { name: 'owner', type: 'String', visibility: 'public' },
           { name: 'balance', type: 'Currency', visibility: 'public', default: '0' }
@@ -185,7 +186,7 @@ export class UmlComponent implements OnInit {
       },
       {
         key: 11,
-        name: 'Person',
+        name: 'Person', color : 'lightgreen',
         properties: [
           { name: 'name', type: 'String', visibility: 'public' },
           { name: 'birth', type: 'Date', visibility: 'protected' }
@@ -217,7 +218,7 @@ export class UmlComponent implements OnInit {
       },
       {
         key: 14,
-        name: 'Course',
+        name: 'Course', color: 'pink',
         properties: [
           { name: 'name', type: 'String', visibility: 'public' },
           { name: 'description', type: 'String', visibility: 'public' },

@@ -1,11 +1,8 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<!-- <div>
-    <h1 style="text-align:center">
-        Welcome to {{title}}!
-    </h1>
+<div>
     <app-diagram-editor [model]='model' (nodeSelected)="showDetails($event)" (modelChanged)="onModelChanged($event)">
     </app-diagram-editor>
-    <form *ngIf="node" #form="ngForm" (ngSubmit)="onCommitDetails()">
+    <!--    <form *ngIf="node" #form="ngForm" (ngSubmit)="onCommitDetails()">
         Node Details:
         <div><label>Key: </label>{{node.key}}</div>
         <div><label>Text: </label><input [(ngModel)]="data.text" name="text"></div>
@@ -17,6 +14,7 @@
     </form>
 </div> -->
 
-<!-- <app-minimal></app-minimal> -->
-<!-- <app-basic></app-basic> -->
-<app-uml></app-uml>
+
+    <app-uml></app-uml>
+    <app-minimal></app-minimal>
+    <app-basic></app-basic>
