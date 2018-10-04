@@ -157,6 +157,7 @@ export class UmlComponent implements OnInit {
       switch (r) {
         case 'generalization': return 'Triangle';
         case 'aggregation': return 'StretchedDiamond';
+        case 'use': return 'OpenTriangle';
         default: return '';
       }
     }
@@ -233,7 +234,8 @@ export class UmlComponent implements OnInit {
     const linkdata = [
       { from: 12, to: 11, relationship: 'generalization' },
       { from: 13, to: 11, relationship: 'generalization' },
-      { from: 14, to: 13, relationship: 'aggregation' }
+      { from: 14, to: 13, relationship: 'aggregation' },
+      { from: 12, to: 1, relationship: 'use' }
     ];
     myDiagram.model = $(go.GraphLinksModel,
       {
