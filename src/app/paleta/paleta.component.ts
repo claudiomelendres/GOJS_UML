@@ -2,33 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import * as go from 'gojs';
 
 @Component({
-  selector: 'app-uml',
-  templateUrl: './uml.component.html',
-  styleUrls: ['./uml.component.css']
+  selector: 'app-paleta',
+  templateUrl: './paleta.component.html',
+  styleUrls: ['./paleta.component.css']
 })
-export class UmlComponent implements OnInit {
+export class PaletaComponent implements OnInit {
 
   constructor() { }
 
   ngOnInit() {
     const $ = go.GraphObject.make;
     const myDiagram =
-      $(go.Diagram, 'myDiagramDiv',
+      $(go.Palette, 'myPaletteDiv',
         {
-          initialContentAlignment: go.Spot.Center,
-          allowDrop: true,
-          'undoManager.isEnabled': true,
-          layout: $(go.TreeLayout,
-                    { // this only lays out in trees nodes connected by 'generalization' links
-                      angle: 90,
-                      path: go.TreeLayout.PathSource,  // links go from child to parent
-                      setsPortSpot: false,  // keep Spot.AllSides for link connection spot
-                      setsChildPortSpot: false, // keep Spot.AllSides
-                      // nodes not connected by 'generalization' links are laid out horizontally
-                      arrangement: go.TreeLayout.ArrangementHorizontal
-                    })
+          initialContentAlignment: go.Spot.Center
         });
-
     // show visibility or access as a single character at the beginning of each property or method
     function convertVisibility(v) {
       switch (v) {
@@ -102,7 +90,7 @@ export class UmlComponent implements OnInit {
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
-        $(go.Shape, 'RoundedRectangle', { strokeWidth: 1, fill: 'lightyellow' },
+        $(go.Shape,  { strokeWidth: 1, fill: 'lightyellow' },
         new go.Binding('fill', 'color')),
         $(go.Panel, 'Table',
           { defaultRowSeparatorStroke: 'black' },
@@ -146,33 +134,8 @@ export class UmlComponent implements OnInit {
             new go.Binding('visible', 'methods', function(arr) { return arr.length > 0; }))
         )
       );
-    function convertIsTreeLink(r) {
-      return r === 'generalization';
-    }
-    function convertFromArrow(r) {
-      switch (r) {
-        case 'generalization': return '';
-        default: return '';
-      }
-    }
-    function convertToArrow(r) {
-      switch (r) {
-        case 'generalization': return 'Triangle';
-        case 'aggregation': return 'StretchedDiamond';
-        case 'use': return 'OpenTriangle';
-        default: return '';
-      }
-    }
-    myDiagram.linkTemplate =
-      $(go.Link,
-        { routing: go.Link.Orthogonal },
-        new go.Binding('isLayoutPositioned', 'relationship', convertIsTreeLink),
-        $(go.Shape),
-        $(go.Shape, { scale: 1.3, fill: 'white' },
-          new go.Binding('fromArrow', 'relationship', convertFromArrow)),
-        $(go.Shape, { scale: 1.3, fill: 'white' },
-          new go.Binding('toArrow', 'relationship', convertToArrow))
-      );
+
+
     // setup a few example class nodes and relationships
     const nodedata = [
       {
@@ -210,16 +173,6 @@ export class UmlComponent implements OnInit {
         ]
       },
       {
-        key: 13,
-        name: 'Professor',
-        properties: [
-          { name: 'classes', type: 'List<Course>', visibility: 'public' }
-        ],
-        methods: [
-          { name: 'teach', parameters: [{ name: 'class', type: 'Course' }], visibility: 'private' }
-        ]
-      },
-      {
         key: 14,
         name: 'Course', color: 'pink',
         properties: [
@@ -233,19 +186,10 @@ export class UmlComponent implements OnInit {
         ]
       }
     ];
-    const linkdata = [
-      { from: 12, to: 11, relationship: 'generalization' },
-      { from: 13, to: 11, relationship: 'generalization' },
-      { from: 14, to: 13, relationship: 'aggregation' },
-      { from: 12, to: 1, relationship: 'use' }
-    ];
 
     myDiagram.model = $(go.GraphLinksModel,
       {
-        copiesArrays: true,
-        copiesArrayObjects: true,
         nodeDataArray: nodedata,
-        linkDataArray: linkdata
       });
   }
 

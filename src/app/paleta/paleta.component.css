@@ -1,8 +1,8 @@
-.diagramDiv {
+.paletteDiv {
     border: 1px solid black;
     display: inline-block;
     vertical-align: top;
     width: 100%;
-    height: 600px;
-    background: rgb(153, 188, 221)
+    height: 150px;
+    background: rgb(104, 103, 102)
 }

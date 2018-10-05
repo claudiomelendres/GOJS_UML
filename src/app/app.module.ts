@@ -7,6 +7,7 @@ import { DiagramEditorComponent } from './diagram-editor/diagram-editor.componen
 import { BasicComponent } from './basic/basic.component';
 import { MinimalComponent } from './minimal/minimal.component';
 import { UmlComponent } from './uml/uml.component';
+import { PaletaComponent } from './paleta/paleta.component';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { UmlComponent } from './uml/uml.component';
     DiagramEditorComponent,
     BasicComponent,
     MinimalComponent,
-    UmlComponent
+    UmlComponent,
+    PaletaComponent
   ],
   imports: [
     BrowserModule,
