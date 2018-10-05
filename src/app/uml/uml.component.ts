@@ -8,11 +8,16 @@ import * as go from 'gojs';
 })
 export class UmlComponent implements OnInit {
 
+  private myDiagram;
+  private nodedata;
+  private linkdata;
+  private $ = go.GraphObject.make;
+
   constructor() { }
 
   ngOnInit() {
-    const $ = go.GraphObject.make;
-    const myDiagram =
+    const $ = this.$;
+    this.myDiagram =
       $(go.Diagram, 'myDiagramDiv',
         {
           initialContentAlignment: go.Spot.Center,
@@ -95,14 +100,22 @@ export class UmlComponent implements OnInit {
       );
     // this simple template does not have any buttons to permit adding or
     // removing properties or methods, but it could!
-    myDiagram.nodeTemplate =
+    this.myDiagram.nodeTemplate =
       $(go.Node, 'Auto',
         {
           locationSpot: go.Spot.Center,
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
-        $(go.Shape, 'RoundedRectangle', { strokeWidth: 1, fill: 'lightyellow' },
+        $(go.Shape, 'RoundedRectangle',
+        {
+          strokeWidth: 1,
+          fill: 'lightyellow' ,
+          portId: '', cursor: 'pointer',  // the Shape is the port, not the whole Node
+          // allow all kinds of links from and to this port
+          fromLinkable: true,
+          toLinkable: true
+        },
         new go.Binding('fill', 'color')),
         $(go.Panel, 'Table',
           { defaultRowSeparatorStroke: 'black' },
@@ -163,7 +176,7 @@ export class UmlComponent implements OnInit {
         default: return '';
       }
     }
-    myDiagram.linkTemplate =
+    this.myDiagram.linkTemplate =
       $(go.Link,
         { routing: go.Link.Orthogonal },
         new go.Binding('isLayoutPositioned', 'relationship', convertIsTreeLink),
@@ -174,7 +187,7 @@ export class UmlComponent implements OnInit {
           new go.Binding('toArrow', 'relationship', convertToArrow))
       );
     // setup a few example class nodes and relationships
-    const nodedata = [
+    this.nodedata = [
       {
         key: 1,
         name: 'BankAccount', color: 'lightblue',
@@ -233,20 +246,35 @@ export class UmlComponent implements OnInit {
         ]
       }
     ];
-    const linkdata = [
+    this.linkdata = [
       { from: 12, to: 11, relationship: 'generalization' },
       { from: 13, to: 11, relationship: 'generalization' },
       { from: 14, to: 13, relationship: 'aggregation' },
       { from: 12, to: 1, relationship: 'use' }
     ];
 
-    myDiagram.model = $(go.GraphLinksModel,
+    // linkdata.push( { from: 12, to: 13, relationship: 'use' });
+
+    this.myDiagram.model = $(go.GraphLinksModel,
       {
         copiesArrays: true,
         copiesArrayObjects: true,
-        nodeDataArray: nodedata,
-        linkDataArray: linkdata
+        nodeDataArray: this.nodedata,
+        linkDataArray: this.linkdata
       });
+  }
+
+  addLink() {
+    console.log('Adding link');
+    this.myDiagram.model.linkDataArray.push({ from: 12, to: 13, relationship: 'use' });
+    this.myDiagram.model = this.$(go.GraphLinksModel,
+      {
+        copiesArrays: true,
+        copiesArrayObjects: true,
+        nodeDataArray: this.nodedata,
+        linkDataArray: this.linkdata
+      });
+    console.log(this.myDiagram.model);
   }
 
 }
