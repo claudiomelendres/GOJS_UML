@@ -1,3 +1,31 @@
-<button (click)="addLink()">add Link</button>
-<button (click)="addRelatioshit()">add Relation</button>
+<!-- <button (click)="addLink()" class="btn btn-primary">add Link</button>
+<button (click)="addRelatioshit()">add Relation</button> -->
+<div class=row>
+    <div class="col-sm-6 linksTitle">
+        <h3>Link Types</h3>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-check">
+            <label class="radio-inline">
+            <input type="radio" value="generalization" name="typeLink" [(ngModel)]="typeLink">
+            generalization
+        </label>
+        </div>
+        <div class="form-check">
+            <label class="radio-inline">
+            <input type="radio" value="aggregation" name="typeLink" [(ngModel)]="typeLink">
+            aggregation
+        </label>
+        </div>
+        <div class="form-check">
+            <label class="radio-inline">
+            <input type="radio" value="use" name="typeLink" [(ngModel)]="typeLink">
+            use
+        </label>
+        </div>
+    </div>
+</div>
+<div class="alert alert-danger" role="alert" *ngIf="error">
+    {{ errorMensaje }}
+</div>
 <div id="myDiagramDiv" class="diagramDiv"></div>

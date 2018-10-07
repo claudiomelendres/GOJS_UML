@@ -12,12 +12,17 @@ export class UmlComponent implements OnInit {
   private nodedata;
   private linkdata;
   private $ = go.GraphObject.make;
+  typeLink = 'use';
+  private doted = false;
+  error = false;
+  errorMensaje = '';
 
   constructor() { }
 
-  
+
 
   ngOnInit() {
+    const that = this;
     const $ = this.$;
     this.myDiagram =
       $(go.Diagram, 'myDiagramDiv',
@@ -181,9 +186,12 @@ export class UmlComponent implements OnInit {
     }
     this.myDiagram.linkTemplate =
       $(go.Link,
-        { routing: go.Link.Orthogonal },
+        { routing: go.Link.None },
         new go.Binding('isLayoutPositioned', 'relationship', convertIsTreeLink),
-        $(go.Shape),
+        $(go.Shape,
+          new go.Binding('stroke', 'color'),
+          new go.Binding('strokeDashArray', 'dash')
+          ),
         $(go.Shape, { scale: 1.3, fill: 'red' },
           new go.Binding('fromArrow', 'relationship', convertFromArrow)),
         $(go.Shape, { scale: 1.3, fill: 'white' },
@@ -192,10 +200,22 @@ export class UmlComponent implements OnInit {
 
 
       function InfoLink(fromnode, fromport, tonode, toport) {
+        that.error = false;
         console.log('fromnode');
         console.log(fromnode);
         console.log('tonode');
         console.log(tonode);
+        if (tonode.Yd.color === 'pink' && (that.typeLink === 'use' || that.typeLink === 'aggregation')) {
+          that.errorMensaje = ' No es posible usar enlaces de: ' + that.typeLink + ' con interfaces ';
+          that.error = true;
+          return false;
+        }
+
+        if (tonode.Yd.color === 'pink') {
+          that.doted = true;
+        } else {
+          that.doted = false;
+        }
         return true;
       }
       this.myDiagram.toolManager.linkingTool.linkValidation = InfoLink;
@@ -203,6 +223,8 @@ export class UmlComponent implements OnInit {
       this.myDiagram.addDiagramListener('LinkDrawn', function(e) {
        console.log('cambiando');
        console.log(e);
+
+       console.log(that.typeLink);
        const model = e.diagram.model;
         // all model changes should happen in a transaction
 
@@ -211,7 +233,12 @@ export class UmlComponent implements OnInit {
           const myTo = data.to;
           model.startTransaction('reconnect link');
           model.removeLinkData(data);
-          const linkdata = { from: myFrom, to: myTo, relationship: 'aggregation' };
+          let linkdata;
+          if ( that.doted ) {
+            linkdata = { from: myFrom, to: myTo, relationship: that.typeLink, dash: [3, 2] };
+          } else {
+            linkdata = { from: myFrom, to: myTo, relationship: that.typeLink };
+          }
           model.addLinkData(linkdata);
           model.commitTransaction('reconnect link');
 
@@ -243,46 +270,46 @@ export class UmlComponent implements OnInit {
           { name: 'getCurrentAge', type: 'int', visibility: 'public' }
         ]
       },
-      {
-        key: 12,
-        name: 'Student',
-        properties: [
-          { name: 'classes', type: 'List<Course>', visibility: 'public' }
-        ],
-        methods: [
-          { name: 'attend', parameters: [{ name: 'class', type: 'Course' }], visibility: 'private' },
-          { name: 'sleep', visibility: 'private' }
-        ]
-      },
-      {
-        key: 13,
-        name: 'Professor',
-        properties: [
-          { name: 'classes', type: 'List<Course>', visibility: 'public' }
-        ],
-        methods: [
-          { name: 'teach', parameters: [{ name: 'class', type: 'Course' }], visibility: 'private' }
-        ]
-      },
-      {
-        key: 14,
-        name: 'Course', color: 'pink',
-        properties: [
-          { name: 'name', type: 'String', visibility: 'public' },
-          { name: 'description', type: 'String', visibility: 'public' },
-          { name: 'professor', type: 'Professor', visibility: 'public' },
-          { name: 'location', type: 'String', visibility: 'public' },
-          { name: 'times', type: 'List<Time>', visibility: 'public' },
-          { name: 'prerequisites', type: 'List<Course>', visibility: 'public' },
-          { name: 'students', type: 'List<Student>', visibility: 'public' }
-        ]
-      }
+      // {
+      //   key: 12,
+      //   name: 'Student',
+      //   properties: [
+      //     { name: 'classes', type: 'List<Course>', visibility: 'public' }
+      //   ],
+      //   methods: [
+      //     { name: 'attend', parameters: [{ name: 'class', type: 'Course' }], visibility: 'private' },
+      //     { name: 'sleep', visibility: 'private' }
+      //   ]
+      // },
+      // {
+      //   key: 13,
+      //   name: 'Professor',
+      //   properties: [
+      //     { name: 'classes', type: 'List<Course>', visibility: 'public' }
+      //   ],
+      //   methods: [
+      //     { name: 'teach', parameters: [{ name: 'class', type: 'Course' }], visibility: 'private' }
+      //   ]
+      // },
+      // {
+      //   key: 14,
+      //   name: 'Course', color: 'pink',
+      //   properties: [
+      //     { name: 'name', type: 'String', visibility: 'public' },
+      //     { name: 'description', type: 'String', visibility: 'public' },
+      //     { name: 'professor', type: 'Professor', visibility: 'public' },
+      //     { name: 'location', type: 'String', visibility: 'public' },
+      //     { name: 'times', type: 'List<Time>', visibility: 'public' },
+      //     { name: 'prerequisites', type: 'List<Course>', visibility: 'public' },
+      //     { name: 'students', type: 'List<Student>', visibility: 'public' }
+      //   ]
+      // }
     ];
     this.linkdata = [
-      { from: 12, to: 11, relationship: 'generalization' },
-      { from: 13, to: 11, relationship: 'generalization' },
-      { from: 14, to: 13, relationship: 'aggregation' },
-      { from: 12, to: 1, relationship: 'use' }
+      { from: 1, to: 11, relationship: 'generalization', dash: [3, 2] },
+      // { from: 13, to: 11, relationship: 'generalization' },
+      // { from: 14, to: 13, relationship: 'aggregation' },
+      // { from: 12, to: 1, relationship: 'use' }
     ];
 
     // linkdata.push( { from: 12, to: 13, relationship: 'use' });
