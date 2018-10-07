@@ -29,20 +29,10 @@ export class UmlComponent implements OnInit {
         {
           initialContentAlignment: go.Spot.Center,
           allowDrop: true,
-          'undoManager.isEnabled': true,
-          // layout: $(go.TreeLayout,
-          //           { // this only lays out in trees nodes connected by 'generalization' links
-          //             angle: 90,
-          //             layerSpacing: 80, nodeSpacing: 100,
-          //             path: go.TreeLayout.PathSource,  // links go from child to parent
-          //             setsPortSpot: false,  // keep Spot.AllSides for link connection spot
-          //             setsChildPortSpot: true, // keep Spot.AllSides
-          //             // nodes not connected by 'generalization' links are laid out horizontally
-          //             arrangement: go.TreeLayout.ArrangementHorizontal
-          //           })
+          'undoManager.isEnabled': true
         });
 
-    // show visibility or access as a single character at the beginning of each property or method
+
     function convertVisibility(v) {
       switch (v) {
         case 'public': return '+';
@@ -52,44 +42,43 @@ export class UmlComponent implements OnInit {
         default: return v;
       }
     }
-    // the item template for properties
+
     const propertyTemplate =
       $(go.Panel, 'Horizontal',
-        // property visibility/access
         $(go.TextBlock,
           { isMultiline: false, editable: false, width: 12 },
           new go.Binding('text', 'visibility', convertVisibility)),
-        // property name, underlined if scope=='class' to indicate static property
+
         $(go.TextBlock,
           { isMultiline: false, editable: true },
           new go.Binding('text', 'name').makeTwoWay(),
           new go.Binding('isUnderline', 'scope', function(s) { return s[0] === 'c'; })),
-        // property type, if known
+
         $(go.TextBlock, '',
           new go.Binding('text', 'type', function(t) { return (t ? ': ' : ''); })),
         $(go.TextBlock,
           { isMultiline: false, editable: true },
           new go.Binding('text', 'type').makeTwoWay()),
-        // property default value, if any
+ 
         $(go.TextBlock,
           { isMultiline: false, editable: false },
           new go.Binding('text', 'default', function(s) { return s ? ' = ' + s : ''; }))
       );
-    // the item template for methods
+
     const methodTemplate =
       $(go.Panel, 'Horizontal',
-        // method visibility/access
+
         $(go.TextBlock,
           { isMultiline: false, editable: false, width: 12 },
           new go.Binding('text', 'visibility', convertVisibility)),
-        // method name, underlined if scope=='class' to indicate static method
+
         $(go.TextBlock,
           { isMultiline: false, editable: true },
           new go.Binding('text', 'name').makeTwoWay(),
           new go.Binding('isUnderline', 'scope', function(s) { return s[0] === 'c'; })),
-        // method parameters
+
         $(go.TextBlock, '()',
-          // this does not permit adding/editing/removing of parameters via inplace edits
+
           new go.Binding('text', 'parameters', function(parr) {
               let s = '(';
               for (let i = 0; i < parr.length; i++) {
@@ -99,15 +88,14 @@ export class UmlComponent implements OnInit {
               }
               return s + ')';
           })),
-        // method return type, if any
+
         $(go.TextBlock, '',
           new go.Binding('text', 'type', function(t) { return (t ? ': ' : ''); })),
         $(go.TextBlock,
           { isMultiline: false, editable: true },
           new go.Binding('text', 'type').makeTwoWay())
       );
-    // this simple template does not have any buttons to permit adding or
-    // removing properties or methods, but it could!
+
     this.myDiagram.nodeTemplate =
       $(go.Node, 'Auto',
         {
@@ -119,15 +107,13 @@ export class UmlComponent implements OnInit {
         {
           strokeWidth: 1,
           fill: 'lightyellow' ,
-          portId: '', cursor: 'pointer',  // the Shape is the port, not the whole Node
-          // allow all kinds of links from and to this port
+          portId: '', cursor: 'pointer',
           fromLinkable: true,
           toLinkable: true
         },
         new go.Binding('fill', 'color')),
         $(go.Panel, 'Table',
           { defaultRowSeparatorStroke: 'black' },
-          // header
           $(go.TextBlock,
             {
               row: 0, columnSpan: 2, margin: 3, alignment: go.Spot.Center,
@@ -135,7 +121,6 @@ export class UmlComponent implements OnInit {
               isMultiline: false, editable: true
             },
             new go.Binding('text', 'name').makeTwoWay()),
-          // properties
           $(go.TextBlock, 'Properties',
             { row: 1, font: 'italic 10pt sans-serif' },
             new go.Binding('visible', 'visible', function(v) { return !v; }).ofObject('PROPERTIES')),
@@ -150,7 +135,6 @@ export class UmlComponent implements OnInit {
           $('PanelExpanderButton', 'PROPERTIES',
             { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
             new go.Binding('visible', 'properties', function(arr) { return arr.length > 0; })),
-          // methods
           $(go.TextBlock, 'Methods',
             { row: 2, font: 'italic 10pt sans-serif' },
             new go.Binding('visible', 'visible', function(v) { return !v; }).ofObject('METHODS')),
@@ -223,10 +207,8 @@ export class UmlComponent implements OnInit {
       this.myDiagram.addDiagramListener('LinkDrawn', function(e) {
        console.log('cambiando');
        console.log(e);
-
        console.log(that.typeLink);
        const model = e.diagram.model;
-        // all model changes should happen in a transaction
 
           const data = model.linkDataArray[model.linkDataArray.length - 1];
           const myFrom = data.from;
@@ -245,31 +227,30 @@ export class UmlComponent implements OnInit {
 
     });
 
-    // setup a few example class nodes and relationships
     this.nodedata = [
-      {
-        key: 1,
-        name: 'BankAccount', color: 'lightblue', loc: new go.Point(500, 500),
-        properties: [
-          { name: 'owner', type: 'String', visibility: 'public' },
-          { name: 'balance', type: 'Currency', visibility: 'public', default: '0' }
-        ],
-        methods: [
-          { name: 'deposit', parameters: [{ name: 'amount', type: 'Currency' }], visibility: 'public' },
-          { name: 'withdraw', parameters: [{ name: 'amount', type: 'Currency' }], visibility: 'public' }
-        ]
-      },
-      {
-        key: 11,
-        name: 'Person', color : 'lightgreen',
-        properties: [
-          { name: 'name', type: 'String', visibility: 'public' },
-          { name: 'birth', type: 'Date', visibility: 'protected' }
-        ],
-        methods: [
-          { name: 'getCurrentAge', type: 'int', visibility: 'public' }
-        ]
-      },
+      // {
+      //   key: 1,
+      //   name: 'BankAccount', color: 'lightblue', loc: new go.Point(500, 500),
+      //   properties: [
+      //     { name: 'owner', type: 'String', visibility: 'public' },
+      //     { name: 'balance', type: 'Currency', visibility: 'public', default: '0' }
+      //   ],
+      //   methods: [
+      //     { name: 'deposit', parameters: [{ name: 'amount', type: 'Currency' }], visibility: 'public' },
+      //     { name: 'withdraw', parameters: [{ name: 'amount', type: 'Currency' }], visibility: 'public' }
+      //   ]
+      // },
+      // {
+      //   key: 11,
+      //   name: 'Person', color : 'lightgreen',
+      //   properties: [
+      //     { name: 'name', type: 'String', visibility: 'public' },
+      //     { name: 'birth', type: 'Date', visibility: 'protected' }
+      //   ],
+      //   methods: [
+      //     { name: 'getCurrentAge', type: 'int', visibility: 'public' }
+      //   ]
+      // },
       // {
       //   key: 12,
       //   name: 'Student',
@@ -306,13 +287,11 @@ export class UmlComponent implements OnInit {
       // }
     ];
     this.linkdata = [
-      { from: 1, to: 11, relationship: 'generalization', dash: [3, 2] },
+      // { from: 1, to: 11, relationship: 'generalization' },
       // { from: 13, to: 11, relationship: 'generalization' },
       // { from: 14, to: 13, relationship: 'aggregation' },
       // { from: 12, to: 1, relationship: 'use' }
     ];
-
-    // linkdata.push( { from: 12, to: 13, relationship: 'use' });
 
     this.myDiagram.model = $(go.GraphLinksModel,
       {
@@ -322,39 +301,4 @@ export class UmlComponent implements OnInit {
         linkDataArray: this.linkdata
       });
   }
-
-  addLink() {
-
-    console.log('Adding link');
-    const model = this.myDiagram.model;
-    model.startTransaction('reconnect link');
-
-    const linkdata = { from: 12, to: 13, relationship: 'aggregation' };
-    model.addLinkData(linkdata);
-
-    model.commitTransaction('reconnect link');
-    console.log(this.myDiagram.model);
-  }
-
-  addRelatioshit() {
-    const model = this.myDiagram.model;
-        // all model changes should happen in a transaction
-
-    console.log('Adding Relationship');
-    const data = model.linkDataArray[model.linkDataArray.length - 1];
-    const myFrom = data.from;
-    const myTo = data.to;
-
-    model.startTransaction('reconnect link');
-
-    console.log(model.linkDataArray);
-    model.removeLinkData(data);
-    console.log(model.linkDataArray);
-    const linkdata = { from: myFrom, to: myTo, relationship: 'aggregation' };
-    model.addLinkData(linkdata);
-
-    model.commitTransaction('reconnect link');
-
-  }
-
 }
