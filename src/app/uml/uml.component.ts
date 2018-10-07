@@ -15,6 +15,8 @@ export class UmlComponent implements OnInit {
 
   constructor() { }
 
+  
+
   ngOnInit() {
     const $ = this.$;
     this.myDiagram =
@@ -23,15 +25,16 @@ export class UmlComponent implements OnInit {
           initialContentAlignment: go.Spot.Center,
           allowDrop: true,
           'undoManager.isEnabled': true,
-          layout: $(go.TreeLayout,
-                    { // this only lays out in trees nodes connected by 'generalization' links
-                      angle: 90,
-                      path: go.TreeLayout.PathSource,  // links go from child to parent
-                      setsPortSpot: false,  // keep Spot.AllSides for link connection spot
-                      setsChildPortSpot: false, // keep Spot.AllSides
-                      // nodes not connected by 'generalization' links are laid out horizontally
-                      arrangement: go.TreeLayout.ArrangementHorizontal
-                    })
+          // layout: $(go.TreeLayout,
+          //           { // this only lays out in trees nodes connected by 'generalization' links
+          //             angle: 90,
+          //             layerSpacing: 80, nodeSpacing: 100,
+          //             path: go.TreeLayout.PathSource,  // links go from child to parent
+          //             setsPortSpot: false,  // keep Spot.AllSides for link connection spot
+          //             setsChildPortSpot: true, // keep Spot.AllSides
+          //             // nodes not connected by 'generalization' links are laid out horizontally
+          //             arrangement: go.TreeLayout.ArrangementHorizontal
+          //           })
         });
 
     // show visibility or access as a single character at the beginning of each property or method
@@ -181,16 +184,45 @@ export class UmlComponent implements OnInit {
         { routing: go.Link.Orthogonal },
         new go.Binding('isLayoutPositioned', 'relationship', convertIsTreeLink),
         $(go.Shape),
-        $(go.Shape, { scale: 1.3, fill: 'white' },
+        $(go.Shape, { scale: 1.3, fill: 'red' },
           new go.Binding('fromArrow', 'relationship', convertFromArrow)),
         $(go.Shape, { scale: 1.3, fill: 'white' },
           new go.Binding('toArrow', 'relationship', convertToArrow))
       );
+
+
+      function InfoLink(fromnode, fromport, tonode, toport) {
+        console.log('fromnode');
+        console.log(fromnode);
+        console.log('tonode');
+        console.log(tonode);
+        return true;
+      }
+      this.myDiagram.toolManager.linkingTool.linkValidation = InfoLink;
+
+      this.myDiagram.addDiagramListener('LinkDrawn', function(e) {
+       console.log('cambiando');
+       console.log(e);
+       const model = e.diagram.model;
+        // all model changes should happen in a transaction
+
+          const data = model.linkDataArray[model.linkDataArray.length - 1];
+          const myFrom = data.from;
+          const myTo = data.to;
+          model.startTransaction('reconnect link');
+          model.removeLinkData(data);
+          const linkdata = { from: myFrom, to: myTo, relationship: 'aggregation' };
+          model.addLinkData(linkdata);
+          model.commitTransaction('reconnect link');
+
+
+    });
+
     // setup a few example class nodes and relationships
     this.nodedata = [
       {
         key: 1,
-        name: 'BankAccount', color: 'lightblue',
+        name: 'BankAccount', color: 'lightblue', loc: new go.Point(500, 500),
         properties: [
           { name: 'owner', type: 'String', visibility: 'public' },
           { name: 'balance', type: 'Currency', visibility: 'public', default: '0' }
@@ -265,16 +297,37 @@ export class UmlComponent implements OnInit {
   }
 
   addLink() {
+
     console.log('Adding link');
-    this.myDiagram.model.linkDataArray.push({ from: 12, to: 13, relationship: 'use' });
-    this.myDiagram.model = this.$(go.GraphLinksModel,
-      {
-        copiesArrays: true,
-        copiesArrayObjects: true,
-        nodeDataArray: this.nodedata,
-        linkDataArray: this.linkdata
-      });
+    const model = this.myDiagram.model;
+    model.startTransaction('reconnect link');
+
+    const linkdata = { from: 12, to: 13, relationship: 'aggregation' };
+    model.addLinkData(linkdata);
+
+    model.commitTransaction('reconnect link');
     console.log(this.myDiagram.model);
+  }
+
+  addRelatioshit() {
+    const model = this.myDiagram.model;
+        // all model changes should happen in a transaction
+
+    console.log('Adding Relationship');
+    const data = model.linkDataArray[model.linkDataArray.length - 1];
+    const myFrom = data.from;
+    const myTo = data.to;
+
+    model.startTransaction('reconnect link');
+
+    console.log(model.linkDataArray);
+    model.removeLinkData(data);
+    console.log(model.linkDataArray);
+    const linkdata = { from: myFrom, to: myTo, relationship: 'aggregation' };
+    model.addLinkData(linkdata);
+
+    model.commitTransaction('reconnect link');
+
   }
 
 }
