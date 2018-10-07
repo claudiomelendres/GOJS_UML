@@ -8,25 +8,38 @@ import * as go from 'gojs';
 })
 export class UmlComponent implements OnInit {
 
+  private myDiagram;
+  private nodedata;
+  private linkdata;
+  private $ = go.GraphObject.make;
+  typeLink = 'use';
+  private doted = false;
+  error = false;
+  errorMensaje = '';
+
   constructor() { }
 
+
+
   ngOnInit() {
-    const $ = go.GraphObject.make;
-    const myDiagram =
+    const that = this;
+    const $ = this.$;
+    this.myDiagram =
       $(go.Diagram, 'myDiagramDiv',
         {
           initialContentAlignment: go.Spot.Center,
           allowDrop: true,
           'undoManager.isEnabled': true,
-          layout: $(go.TreeLayout,
-                    { // this only lays out in trees nodes connected by 'generalization' links
-                      angle: 90,
-                      path: go.TreeLayout.PathSource,  // links go from child to parent
-                      setsPortSpot: false,  // keep Spot.AllSides for link connection spot
-                      setsChildPortSpot: false, // keep Spot.AllSides
-                      // nodes not connected by 'generalization' links are laid out horizontally
-                      arrangement: go.TreeLayout.ArrangementHorizontal
-                    })
+          // layout: $(go.TreeLayout,
+          //           { // this only lays out in trees nodes connected by 'generalization' links
+          //             angle: 90,
+          //             layerSpacing: 80, nodeSpacing: 100,
+          //             path: go.TreeLayout.PathSource,  // links go from child to parent
+          //             setsPortSpot: false,  // keep Spot.AllSides for link connection spot
+          //             setsChildPortSpot: true, // keep Spot.AllSides
+          //             // nodes not connected by 'generalization' links are laid out horizontally
+          //             arrangement: go.TreeLayout.ArrangementHorizontal
+          //           })
         });
 
     // show visibility or access as a single character at the beginning of each property or method
@@ -95,14 +108,22 @@ export class UmlComponent implements OnInit {
       );
     // this simple template does not have any buttons to permit adding or
     // removing properties or methods, but it could!
-    myDiagram.nodeTemplate =
+    this.myDiagram.nodeTemplate =
       $(go.Node, 'Auto',
         {
           locationSpot: go.Spot.Center,
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides
         },
-        $(go.Shape, 'RoundedRectangle', { strokeWidth: 1, fill: 'lightyellow' },
+        $(go.Shape, 'RoundedRectangle',
+        {
+          strokeWidth: 1,
+          fill: 'lightyellow' ,
+          portId: '', cursor: 'pointer',  // the Shape is the port, not the whole Node
+          // allow all kinds of links from and to this port
+          fromLinkable: true,
+          toLinkable: true
+        },
         new go.Binding('fill', 'color')),
         $(go.Panel, 'Table',
           { defaultRowSeparatorStroke: 'black' },
@@ -163,21 +184,72 @@ export class UmlComponent implements OnInit {
         default: return '';
       }
     }
-    myDiagram.linkTemplate =
+    this.myDiagram.linkTemplate =
       $(go.Link,
-        { routing: go.Link.Orthogonal },
+        { routing: go.Link.None },
         new go.Binding('isLayoutPositioned', 'relationship', convertIsTreeLink),
-        $(go.Shape),
-        $(go.Shape, { scale: 1.3, fill: 'white' },
+        $(go.Shape,
+          new go.Binding('stroke', 'color'),
+          new go.Binding('strokeDashArray', 'dash')
+          ),
+        $(go.Shape, { scale: 1.3, fill: 'red' },
           new go.Binding('fromArrow', 'relationship', convertFromArrow)),
         $(go.Shape, { scale: 1.3, fill: 'white' },
           new go.Binding('toArrow', 'relationship', convertToArrow))
       );
+
+
+      function InfoLink(fromnode, fromport, tonode, toport) {
+        that.error = false;
+        console.log('fromnode');
+        console.log(fromnode);
+        console.log('tonode');
+        console.log(tonode);
+        if (tonode.Yd.color === 'pink' && (that.typeLink === 'use' || that.typeLink === 'aggregation')) {
+          that.errorMensaje = ' No es posible usar enlaces de: ' + that.typeLink + ' con interfaces ';
+          that.error = true;
+          return false;
+        }
+
+        if (tonode.Yd.color === 'pink') {
+          that.doted = true;
+        } else {
+          that.doted = false;
+        }
+        return true;
+      }
+      this.myDiagram.toolManager.linkingTool.linkValidation = InfoLink;
+
+      this.myDiagram.addDiagramListener('LinkDrawn', function(e) {
+       console.log('cambiando');
+       console.log(e);
+
+       console.log(that.typeLink);
+       const model = e.diagram.model;
+        // all model changes should happen in a transaction
+
+          const data = model.linkDataArray[model.linkDataArray.length - 1];
+          const myFrom = data.from;
+          const myTo = data.to;
+          model.startTransaction('reconnect link');
+          model.removeLinkData(data);
+          let linkdata;
+          if ( that.doted ) {
+            linkdata = { from: myFrom, to: myTo, relationship: that.typeLink, dash: [3, 2] };
+          } else {
+            linkdata = { from: myFrom, to: myTo, relationship: that.typeLink };
+          }
+          model.addLinkData(linkdata);
+          model.commitTransaction('reconnect link');
+
+
+    });
+
     // setup a few example class nodes and relationships
-    const nodedata = [
+    this.nodedata = [
       {
         key: 1,
-        name: 'BankAccount', color: 'lightblue',
+        name: 'BankAccount', color: 'lightblue', loc: new go.Point(500, 500),
         properties: [
           { name: 'owner', type: 'String', visibility: 'public' },
           { name: 'balance', type: 'Currency', visibility: 'public', default: '0' }
@@ -198,55 +270,91 @@ export class UmlComponent implements OnInit {
           { name: 'getCurrentAge', type: 'int', visibility: 'public' }
         ]
       },
-      {
-        key: 12,
-        name: 'Student',
-        properties: [
-          { name: 'classes', type: 'List<Course>', visibility: 'public' }
-        ],
-        methods: [
-          { name: 'attend', parameters: [{ name: 'class', type: 'Course' }], visibility: 'private' },
-          { name: 'sleep', visibility: 'private' }
-        ]
-      },
-      {
-        key: 13,
-        name: 'Professor',
-        properties: [
-          { name: 'classes', type: 'List<Course>', visibility: 'public' }
-        ],
-        methods: [
-          { name: 'teach', parameters: [{ name: 'class', type: 'Course' }], visibility: 'private' }
-        ]
-      },
-      {
-        key: 14,
-        name: 'Course', color: 'pink',
-        properties: [
-          { name: 'name', type: 'String', visibility: 'public' },
-          { name: 'description', type: 'String', visibility: 'public' },
-          { name: 'professor', type: 'Professor', visibility: 'public' },
-          { name: 'location', type: 'String', visibility: 'public' },
-          { name: 'times', type: 'List<Time>', visibility: 'public' },
-          { name: 'prerequisites', type: 'List<Course>', visibility: 'public' },
-          { name: 'students', type: 'List<Student>', visibility: 'public' }
-        ]
-      }
+      // {
+      //   key: 12,
+      //   name: 'Student',
+      //   properties: [
+      //     { name: 'classes', type: 'List<Course>', visibility: 'public' }
+      //   ],
+      //   methods: [
+      //     { name: 'attend', parameters: [{ name: 'class', type: 'Course' }], visibility: 'private' },
+      //     { name: 'sleep', visibility: 'private' }
+      //   ]
+      // },
+      // {
+      //   key: 13,
+      //   name: 'Professor',
+      //   properties: [
+      //     { name: 'classes', type: 'List<Course>', visibility: 'public' }
+      //   ],
+      //   methods: [
+      //     { name: 'teach', parameters: [{ name: 'class', type: 'Course' }], visibility: 'private' }
+      //   ]
+      // },
+      // {
+      //   key: 14,
+      //   name: 'Course', color: 'pink',
+      //   properties: [
+      //     { name: 'name', type: 'String', visibility: 'public' },
+      //     { name: 'description', type: 'String', visibility: 'public' },
+      //     { name: 'professor', type: 'Professor', visibility: 'public' },
+      //     { name: 'location', type: 'String', visibility: 'public' },
+      //     { name: 'times', type: 'List<Time>', visibility: 'public' },
+      //     { name: 'prerequisites', type: 'List<Course>', visibility: 'public' },
+      //     { name: 'students', type: 'List<Student>', visibility: 'public' }
+      //   ]
+      // }
     ];
-    const linkdata = [
-      { from: 12, to: 11, relationship: 'generalization' },
-      { from: 13, to: 11, relationship: 'generalization' },
-      { from: 14, to: 13, relationship: 'aggregation' },
-      { from: 12, to: 1, relationship: 'use' }
+    this.linkdata = [
+      { from: 1, to: 11, relationship: 'generalization', dash: [3, 2] },
+      // { from: 13, to: 11, relationship: 'generalization' },
+      // { from: 14, to: 13, relationship: 'aggregation' },
+      // { from: 12, to: 1, relationship: 'use' }
     ];
 
-    myDiagram.model = $(go.GraphLinksModel,
+    // linkdata.push( { from: 12, to: 13, relationship: 'use' });
+
+    this.myDiagram.model = $(go.GraphLinksModel,
       {
         copiesArrays: true,
         copiesArrayObjects: true,
-        nodeDataArray: nodedata,
-        linkDataArray: linkdata
+        nodeDataArray: this.nodedata,
+        linkDataArray: this.linkdata
       });
+  }
+
+  addLink() {
+
+    console.log('Adding link');
+    const model = this.myDiagram.model;
+    model.startTransaction('reconnect link');
+
+    const linkdata = { from: 12, to: 13, relationship: 'aggregation' };
+    model.addLinkData(linkdata);
+
+    model.commitTransaction('reconnect link');
+    console.log(this.myDiagram.model);
+  }
+
+  addRelatioshit() {
+    const model = this.myDiagram.model;
+        // all model changes should happen in a transaction
+
+    console.log('Adding Relationship');
+    const data = model.linkDataArray[model.linkDataArray.length - 1];
+    const myFrom = data.from;
+    const myTo = data.to;
+
+    model.startTransaction('reconnect link');
+
+    console.log(model.linkDataArray);
+    model.removeLinkData(data);
+    console.log(model.linkDataArray);
+    const linkdata = { from: myFrom, to: myTo, relationship: 'aggregation' };
+    model.addLinkData(linkdata);
+
+    model.commitTransaction('reconnect link');
+
   }
 
 }

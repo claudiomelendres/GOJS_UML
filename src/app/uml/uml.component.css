@@ -6,3 +6,9 @@
     height: 600px;
     background: rgb(153, 188, 221)
 }
+
+.linksTitle {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}

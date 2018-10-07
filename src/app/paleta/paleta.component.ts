@@ -140,7 +140,7 @@ export class PaletaComponent implements OnInit {
     const nodedata = [
       {
         key: 1,
-        name: 'BankAccount', color: 'lightblue',
+        name: 'Actor', color: 'lightblue',
         properties: [
           { name: 'owner', type: 'String', visibility: 'public' },
           { name: 'balance', type: 'Currency', visibility: 'public', default: '0' }
@@ -152,7 +152,7 @@ export class PaletaComponent implements OnInit {
       },
       {
         key: 11,
-        name: 'Person', color : 'lightgreen',
+        name: 'Abstract Class', color : 'lightgreen',
         properties: [
           { name: 'name', type: 'String', visibility: 'public' },
           { name: 'birth', type: 'Date', visibility: 'protected' }
@@ -163,7 +163,7 @@ export class PaletaComponent implements OnInit {
       },
       {
         key: 12,
-        name: 'Student',
+        name: 'Class',
         properties: [
           { name: 'classes', type: 'List<Course>', visibility: 'public' }
         ],
@@ -174,7 +174,7 @@ export class PaletaComponent implements OnInit {
       },
       {
         key: 14,
-        name: 'Course', color: 'pink',
+        name: '<< Interface >>', color: 'pink',
         properties: [
           { name: 'name', type: 'String', visibility: 'public' },
           { name: 'description', type: 'String', visibility: 'public' },

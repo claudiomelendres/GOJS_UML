@@ -224,7 +224,7 @@ export class BasicComponent implements OnInit {
       );
     // Create the Diagram's Model:
     const nodeDataArray = [
-      { key: 1, text: 'Alpha', color: 'lightblue' },
+      { key: 1, text: 'Alpha', color: 'lightblue', loc: '100 100' },
       { key: 2, text: 'Beta', color: 'orange' },
       { key: 3, text: 'Gamma', color: 'lightgreen', group: 5 },
       { key: 4, text: 'Delta', color: 'pink', group: 5 },
