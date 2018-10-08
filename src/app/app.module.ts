@@ -3,8 +3,10 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
-import { UmlComponent } from './uml/uml.component';
-import { PaletaComponent } from './paleta/paleta.component';
+import { UmlComponent } from '../app/componentes/uml/uml.component';
+import { PaletaComponent } from '../app/componentes/paleta/paleta.component';
+
+import { ItemsService } from '../app/servicios/items.service';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,9 @@ import { PaletaComponent } from './paleta/paleta.component';
     BrowserModule,
     FormsModule
   ],
-  providers: [],
+  providers: [
+    ItemsService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
