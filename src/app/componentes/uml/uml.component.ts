@@ -43,10 +43,6 @@ export class UmlComponent implements OnInit {
 
       function InfoLink(fromnode, fromport, tonode, toport) {
         that.error = false;
-        // console.log('fromnode');
-        // console.log(fromnode);
-        // console.log('tonode');
-        // console.log(tonode);
         if (tonode.Yd.color === 'pink' && (that.typeLink === 'use' || that.typeLink === 'aggregation')) {
           that.errorMensaje = ' No es posible usar enlaces de: -' + that.typeLink + '- con interfaces ';
           that.error = true;
@@ -60,12 +56,10 @@ export class UmlComponent implements OnInit {
         }
         return true;
       }
+
       this.myDiagram.toolManager.linkingTool.linkValidation = InfoLink;
 
       this.myDiagram.addDiagramListener('LinkDrawn', function(e) {
-      //  console.log('cambiando');
-      //  console.log(e);
-      //  console.log(that.typeLink);
        const model = e.diagram.model;
 
           const data = model.linkDataArray[model.linkDataArray.length - 1];
@@ -81,8 +75,6 @@ export class UmlComponent implements OnInit {
           }
           model.addLinkData(linkdata);
           model.commitTransaction('reconnect link');
-
-
     });
 
     this.nodedata = [];
